@@ -1,5 +1,7 @@
+
 # ListeCourse
 ## MiamListe — A Next.js (App Router) project to manage a shopping list.
+# liste-course-kappa.vercel.app
 
 MiamListe is a lightweight shopping‑list application built with Next.js 14, Supabase, and a clean SQL architecture.
 
@@ -29,6 +31,14 @@ npm / yarn / pnpm / bun (optional)
 Docker (recommended for running without installing Node)
 
 Copy env.example → .env and fill your Supabase keys
+
+### Tech stack:
+- Next.js 14 (App Router)
+- TypeScript
+- Supabase (PostgreSQL)
+- Docker
+- CSS variables + responsive layout
+
 
 ## Development
 Create your .env
