@@ -1,7 +1,7 @@
 
 # ListeCourse
 ## MiamListe — A Next.js (App Router) project to manage a shopping list.
-# Liens vers l'[Application](liste-course-kappa.vercel.app)
+# Liens vers l'[Application]([liste-course-kappa.vercel.app](https://liste-course-kappa.vercel.app/))
 
 MiamListe is a lightweight shopping‑list application built with Next.js 14, Supabase, and a clean SQL architecture.
 
