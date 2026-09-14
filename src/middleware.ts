@@ -15,11 +15,11 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/productsOwner",
+    /*"/productsOwner",
     "/productsOwner/:path*",
     "/shoppingOwnerList",
     "/shoppingOwnerList/:path*",
     "/api/productsOwner/:path*",
-    "/api/shoppingOwnerList/:path*",
+    "/api/shoppingOwnerList/:path*",*/
   ],
 };
