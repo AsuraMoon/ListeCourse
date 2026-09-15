@@ -1,3 +1,8 @@
+import { NextResponse } from "next/server"; 
+// NextResponse = permet de renvoyer une réponse API propre
+
+import { supabaseServer } from "@/utils/supabase/server";
+// supabaseServer = ton client service_role côté serveur
 export async function GET() {
   const listId = await getListId();
   // On récupère la liste du user

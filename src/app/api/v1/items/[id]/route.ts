@@ -1,4 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server"; 
+// NextResponse = permet de renvoyer une réponse API propre
+
+import { supabaseServer } from "@/utils/supabase/server";
+// supabaseServer = ton client service_role côté serveur
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const listId = await getListId();
