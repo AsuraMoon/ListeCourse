@@ -1,13 +1,15 @@
 export const dynamic = "force-dynamic";
 
+import { cookies } from "next/headers";
+
 console.log("🔥 ROUTE PRODUCTS LOADED");
 
 export async function GET(req: Request) {
   console.log("🔥 GET /api/v1/products CALLED");
-
-  // 🔥 Lire les cookies envoyés par le navigateur
-  const rawCookies = req.headers.get("cookie");
-  console.log("🍪 Cookies reçus :", rawCookies);
-
-  return Response.json({ ok: true, cookies: rawCookies });
+  const sessionCookie = cookies().get("session");
+  console.log("🍪 cookies().get('session') :", sessionCookie);
+  return Response.json({
+    ok: true,
+    session: sessionCookie?.value ?? null,
+  });
 }

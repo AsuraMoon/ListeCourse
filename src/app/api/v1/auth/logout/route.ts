@@ -1,17 +1,16 @@
-// LOGOUT — supprime le cookie de session pour déconnecter l'utilisateur
-
 import { NextResponse } from "next/server";
 
-export async function POST() {
-  // 1. Réponse JSON de succès
-  const response = NextResponse.json({ success: true });
+export async function POST(req: Request) {
+  const res = NextResponse.redirect(new URL("/login", req.url));
 
-  // 2. Suppression du cookie "session"
-  response.cookies.set("session", "", {
+  // supprimer le cookie
+  res.cookies.set("session", "", {
     httpOnly: true,
-    expires: new Date(0), // expire immédiatement
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires: new Date(0),
   });
 
-  // 3. Retour de la réponse
-  return response;
+  return res;
 }
