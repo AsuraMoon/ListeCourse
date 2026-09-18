@@ -1,7 +1,7 @@
 // GET PRODUCTS — retourne tous les produits du user via cookie "session"
 
 import { NextResponse } from "next/server";
-import { supabase } from "@/utils/supabase/server";
+import { supabase } from "../../../../utils/supabase/server";
 
 export async function GET(req: Request) {
   // 1. Lire le cookie "session"
