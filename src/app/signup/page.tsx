@@ -3,22 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loadingPopup, setLoadingPopup] = useState(false); // popup chargement
+  const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-
-    // Affiche la popup de chargement
-    setLoadingPopup(true);
+    setLoading(true);
 
     try {
-      const res = await fetch("/api/v1/auth/login", {
+      const res = await fetch("/api/v1/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -30,33 +29,36 @@ export default function LoginPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         setError(data?.error || "Erreur inconnue");
-        setLoadingPopup(false); // retire la popup si erreur
+        setLoading(false);
         return;
       }
 
-      // Succès → redirection
-      router.push("/products");
+      setShowPopup(true);
+
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
     } catch {
       setError("Impossible de contacter le serveur");
-      setLoadingPopup(false);
     }
+
+    setLoading(false);
   }
 
   return (
     <>
-      {/* POPUP DE CHARGEMENT */}
-      {loadingPopup && (
+      {showPopup && (
         <div className="popup-overlay">
           <div className="popup">
-            <h3 style={{ marginBottom: "10px" }}>Connexion en cours… 🔐</h3>
-            <p>Veuillez patienter…</p>
+            <h3 style={{ marginBottom: "10px" }}>Inscription confirmée 🎉</h3>
+            <p>Redirection vers l'accueil...</p>
           </div>
         </div>
       )}
 
       <div className="responsive-container">
         <div className="responsive-card" style={{ maxWidth: "400px", margin: "80px auto" }}>
-          <h1 className="card-title">Connexion</h1>
+          <h1 className="card-title">Inscription</h1>
 
           <form onSubmit={handleSubmit}>
             <label style={{ display: "block", marginBottom: "15px" }}>
@@ -87,8 +89,13 @@ export default function LoginPage() {
               </p>
             )}
 
-            <button type="submit" className="secondary-button" style={{ width: "100%" }}>
-              Se connecter
+            <button
+              type="submit"
+              className="secondary-button"
+              style={{ width: "100%" }}
+              disabled={loading}
+            >
+              {loading ? "Chargement..." : "S'inscrire"}
             </button>
           </form>
         </div>
