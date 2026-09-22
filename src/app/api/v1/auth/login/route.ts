@@ -1,23 +1,12 @@
 export const runtime = "nodejs";
 
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { createHmac } from "crypto";
 import bcrypt from "bcryptjs";
 
 import { supabase } from "@/utils/supabase";
 
-const AUTH_COOKIE = "auth";
-const AUTH_SECRET = process.env.AUTH_SECRET;
-
-if (!AUTH_SECRET) {
-  throw new Error("AUTH_SECRET is not defined");
-}
-
-function createSignature(userId: number): string {
-  return createHmac("sha256", AUTH_SECRET)
-    .update(String(userId))
-    .digest("hex");
-}
+const SESSION_COOKIE = "session";
 
 export async function POST(req: Request) {
   try {
@@ -34,13 +23,13 @@ export async function POST(req: Request) {
 
     const cleanUsername = username.trim();
 
-    const { data: user, error } = await supabase
+    const { data: user, error: userError } = await supabase
       .from("users")
       .select("id, password")
       .eq("username", cleanUsername)
       .single();
 
-    if (error || !user) {
+    if (userError || !user) {
       return NextResponse.json(
         {
           error: "Identifiants invalides.",
@@ -63,23 +52,44 @@ export async function POST(req: Request) {
       );
     }
 
-    const signature = createSignature(user.id);
+    // Création de la session
+    const sessionId = randomUUID();
 
+    const expiresAt = new Date(
+      Date.now() + 1000 * 60 * 60 * 24 * 7
+    );
+
+    const { error: sessionError } = await supabase
+      .from("sessions")
+      .insert({
+        id: sessionId,
+        user_id: user.id,
+        expires_at: expiresAt.toISOString(),
+      });
+
+    if (sessionError) {
+      console.error("CREATE SESSION ERROR:", sessionError);
+
+      return NextResponse.json(
+        {
+          error: "Impossible de créer la session.",
+        },
+        { status: 500 }
+      );
+    }
+
+    // Création du cookie
     const response = NextResponse.json({
       success: true,
     });
 
-    response.cookies.set(
-      AUTH_COOKIE,
-      `${user.id}.${signature}`,
-      {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 7,
-      }
-    );
+    response.cookies.set(SESSION_COOKIE, sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
 
     return response;
   } catch (error) {

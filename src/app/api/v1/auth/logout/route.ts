@@ -1,21 +1,55 @@
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-const AUTH_COOKIE = "auth";
+import { supabase } from "@/utils/supabase";
 
-export async function POST() {
-  const response = NextResponse.json({
-    success: true,
-  });
+const SESSION_COOKIE = "session";
 
-  response.cookies.set(AUTH_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+export async function POST(req: NextRequest) {
+  try {
+    const sessionId = req.cookies.get(SESSION_COOKIE)?.value;
 
-  return response;
+    if (sessionId) {
+      const { error } = await supabase
+        .from("sessions")
+        .delete()
+        .eq("id", sessionId);
+
+      if (error) {
+        console.error("DELETE SESSION ERROR:", error);
+
+        return NextResponse.json(
+          {
+            error: "Impossible de fermer la session.",
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    const response = NextResponse.json({
+      success: true,
+    });
+
+    // Suppression du cookie
+    response.cookies.set(SESSION_COOKIE, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("LOGOUT ERROR:", error);
+
+    return NextResponse.json(
+      {
+        error: "Erreur interne du serveur.",
+      },
+      { status: 500 }
+    );
+  }
 }

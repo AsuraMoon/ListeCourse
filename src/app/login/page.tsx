@@ -11,46 +11,43 @@ export default function LoginPage() {
 
   const router = useRouter();
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    e: React.FormEvent<HTMLFormElement>
+  ) {
     e.preventDefault();
 
     setError("");
     setLoading(true);
 
     try {
-      const res = await fetch("/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
+      const res = await fetch(
+        "/api/v1/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            password,
+          }),
+        }
+      );
 
       const data = await res.json();
 
       console.log("LOGIN RESPONSE:", data);
       console.log("STATUS:", res.status);
 
-      // Gestion des erreurs API
       if (!res.ok) {
-        setError(data.error || "Identifiants incorrects.");
+        setError(
+          data.error || "Identifiants incorrects."
+        );
         return;
       }
 
-      // Vérification de la présence de l'identifiant utilisateur
-      if (!data.userId) {
-        console.error("Réponse API invalide :", data);
-        setError("La réponse du serveur est invalide.");
-        return;
-      }
-
-      // Stockage temporaire de l'identifiant utilisateur
-      localStorage.setItem("userId", String(data.userId));
-
-      // Redirection après connexion
+      // La session est créée par l'API
+      // et stockée dans un cookie HttpOnly.
       router.push("/products");
     } catch (error) {
       console.error("LOGIN ERROR:", error);
@@ -72,7 +69,9 @@ export default function LoginPage() {
           margin: "80px auto",
         }}
       >
-        <h1 className="card-title">Connexion</h1>
+        <h1 className="card-title">
+          Connexion
+        </h1>
 
         <form onSubmit={handleSubmit}>
           {/* Username */}
@@ -87,7 +86,9 @@ export default function LoginPage() {
             <input
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) =>
+                setUsername(e.target.value)
+              }
               className="search-input"
               autoComplete="username"
               required
@@ -107,7 +108,9 @@ export default function LoginPage() {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
               className="search-input"
               autoComplete="current-password"
               required
@@ -137,7 +140,9 @@ export default function LoginPage() {
             }}
             disabled={loading}
           >
-            {loading ? "Connexion..." : "Se connecter"}
+            {loading
+              ? "Connexion..."
+              : "Se connecter"}
           </button>
 
           {/* Home */}
@@ -146,7 +151,8 @@ export default function LoginPage() {
             className="secondary-button"
             style={{
               width: "100%",
-              backgroundColor: "var(--primary-color)",
+              backgroundColor:
+                "var(--primary-color)",
             }}
             onClick={() => router.push("/")}
             disabled={loading}

@@ -3,84 +3,119 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-interface Product {
-  id: number;
-  name: string;
-  to_buy: boolean;
-}
+type AuthResponse = {
+  authenticated: boolean;
+  userId: number | null;
+};
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
+  const [data, setData] = useState<AuthResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-
-    // 🔥 Si pas connecté → retour login
-    if (!userId) {
-      router.push("/login");
-      return;
-    }
-
-    // 🔥 Appel API pour récupérer les produits du user
-    fetch("/api/v1/products", {
-      headers: { "x-user-id": userId }
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.success) {
-          console.log("API ERROR:", data);
-          return;
-        }
-
-        setProducts(data.products);
-      })
-      .catch((err) => console.error(err));
+    loadAuth();
   }, []);
 
-  const filterBySearch = (list: Product[]) => {
-    if (!searchTerm) return list;
-    const q = searchTerm.toLowerCase();
-    return list.filter((p) => p.name.toLowerCase().includes(q));
-  };
+  async function loadAuth() {
+    console.log("========== LOAD AUTH ==========");
 
-  const sortByName = (list: Product[]) =>
-    [...list].sort((a, b) => a.name.localeCompare(b.name));
+    try {
+      const response = await fetch("/api/v1/products");
 
-  const renderCard = (item: Product) => (
-    <div key={item.id} className="responsive-card">
-      <span className="card-title">{item.name}</span>
+      console.log("STATUS:", response.status);
+      console.log("STATUS TEXT:", response.statusText);
+      console.log(
+        "CONTENT-TYPE:",
+        response.headers.get("content-type")
+      );
 
-      <div className="card-actions">
-        <button className="primary-button">Ajouter à la liste</button>
-        <button className="secondary-button">Voir le produit</button>
-      </div>
-    </div>
-  );
+      const text = await response.text();
+
+      console.log("RAW RESPONSE:", text);
+
+      let json: AuthResponse;
+
+      try {
+        json = JSON.parse(text);
+
+        console.log("PARSED JSON:", json);
+      } catch (error) {
+        console.error("JSON PARSE ERROR:", error);
+
+        setError("La réponse du serveur n'est pas du JSON.");
+        return;
+      }
+
+      if (response.status === 401) {
+        console.log("UNAUTHORIZED");
+
+        setError("Session non authentifiée.");
+
+        return;
+      }
+
+      if (!response.ok) {
+        console.error("API ERROR:", json);
+
+        setError("Erreur API.");
+
+        return;
+      }
+
+      console.log("AUTH DATA RECEIVED:", json);
+
+      setData(json);
+    } catch (error) {
+      console.error("LOAD AUTH ERROR:", error);
+
+      setError("Impossible de contacter le serveur.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <main>
+        <h1>Products</h1>
+        <p>Chargement...</p>
+      </main>
+    );
+  }
 
   return (
-    <div className="responsive-container">
-      <header className="responsive-header">
-        <h1>Liste des produits</h1>
+    <main>
+      <h1>Products - Diagnostic Auth</h1>
 
-        <div className="search-controls">
-          <input
-            type="text"
-            placeholder="Rechercher un produit..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-      </header>
+      {error && (
+        <p role="alert">
+          {error}
+        </p>
+      )}
 
-      <section>
-        <h2>Produits</h2>
-        <div className="responsive-wrap">
-          {sortByName(filterBySearch(products)).map(renderCard)}
+      {data && (
+        <div>
+          <p>
+            Authentifié :{" "}
+            {data.authenticated ? "OUI" : "NON"}
+          </p>
+
+          <p>
+            User ID :{" "}
+            {data.userId ?? "Aucun"}
+          </p>
         </div>
-      </section>
-    </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => router.push("/login")}
+      >
+        Retour login
+      </button>
+    </main>
   );
 }

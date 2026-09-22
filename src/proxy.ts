@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function proxy(req: NextRequest) {
-  const authCookie = req.cookies.get("auth")?.value;
-
+  const session = req.cookies.get("session")?.value;
   const path = req.nextUrl.pathname;
 
-  // Routes protégées
-  const protectedRoutes = [
-    "/products",
-  ];
+  const protectedRoutes = ["/products"];
 
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
   );
 
-  // Pas de cookie → redirection vers login
-  if (isProtectedRoute && !authCookie) {
+  if (isProtectedRoute && !session) {
     return NextResponse.redirect(
       new URL("/login", req.url)
     );
@@ -25,7 +20,5 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/products/:path*",
-  ],
+  matcher: ["/products/:path*"],
 };
