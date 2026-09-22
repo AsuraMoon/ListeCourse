@@ -1,3 +1,5 @@
+// src/app/api/v1/auth/signup/route.ts
+
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
@@ -7,9 +9,10 @@ import { supabase } from "@/utils/supabase";
 
 export async function POST(req: Request) {
   try {
+    // Récupération des données envoyées par le client.
     const { username, password } = await req.json();
 
-    // Validation basique
+    // Validation basique des champs obligatoires.
     if (!username || !password) {
       return NextResponse.json(
         {
@@ -19,8 +22,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // Nettoyage du nom d'utilisateur avant son utilisation.
     const cleanUsername = username.trim();
 
+    // Vérification de la longueur minimale du nom d'utilisateur.
     if (cleanUsername.length < 3) {
       return NextResponse.json(
         {
@@ -30,6 +35,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Vérification de la longueur minimale du mot de passe.
     if (password.length < 6) {
       return NextResponse.json(
         {
@@ -39,7 +45,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifie si le username existe déjà
+    // Vérifie si un compte utilise déjà ce nom d'utilisateur.
     const { data: existingUser, error: existingUserError } =
       await supabase
         .from("users")
@@ -48,10 +54,7 @@ export async function POST(req: Request) {
         .maybeSingle();
 
     if (existingUserError) {
-      console.error(
-        "CHECK USER ERROR:",
-        existingUserError
-      );
+      console.error("CHECK USER ERROR:", existingUserError);
 
       return NextResponse.json(
         {
@@ -61,6 +64,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Empêche la création de plusieurs comptes avec le même username.
     if (existingUser) {
       return NextResponse.json(
         {
@@ -70,10 +74,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash du mot de passe
+    // Hash sécurisé du mot de passe avant son stockage en BDD.
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Création du compte
+    // Création du compte utilisateur.
     const { data: user, error: userError } = await supabase
       .from("users")
       .insert({
@@ -84,10 +88,7 @@ export async function POST(req: Request) {
       .single();
 
     if (userError || !user) {
-      console.error(
-        "CREATE USER ERROR:",
-        userError
-      );
+      console.error("CREATE USER ERROR:", userError);
 
       return NextResponse.json(
         {
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Création automatique de la liste
+    // Création automatique de la liste de courses associée à l'utilisateur.
     const { error: listError } = await supabase
       .from("shopping_lists")
       .insert({
@@ -106,13 +107,9 @@ export async function POST(req: Request) {
       });
 
     if (listError) {
-      console.error(
-        "CREATE LIST ERROR:",
-        listError
-      );
+      console.error("CREATE LIST ERROR:", listError);
 
-      // On supprime le compte si la création
-      // de la liste échoue.
+      // Rollback manuel : supprime le compte si la création de la liste échoue.
       await supabase
         .from("users")
         .delete()
@@ -126,6 +123,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Retourne les informations publiques du compte nouvellement créé.
     return NextResponse.json(
       {
         success: true,
@@ -137,6 +135,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    // Gestion des erreurs inattendues côté serveur.
     console.error("SIGNUP ERROR:", error);
 
     return NextResponse.json(

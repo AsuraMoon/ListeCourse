@@ -1,3 +1,5 @@
+// src/app/api/v1/auth/logout/route.ts
+
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -8,8 +10,10 @@ const SESSION_COOKIE = "session";
 
 export async function POST(req: NextRequest) {
   try {
+    // Récupération de l'identifiant de session présent dans le cookie.
     const sessionId = req.cookies.get(SESSION_COOKIE)?.value;
 
+    // Suppression de la session correspondante en BDD.
     if (sessionId) {
       const { error } = await supabase
         .from("sessions")
@@ -28,11 +32,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Création de la réponse avant de supprimer le cookie côté navigateur.
     const response = NextResponse.json({
       success: true,
     });
 
-    // Suppression du cookie
+    // Suppression du cookie de session côté client.
     response.cookies.set(SESSION_COOKIE, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -43,6 +48,7 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error) {
+    // Gestion des erreurs inattendues côté serveur.
     console.error("LOGOUT ERROR:", error);
 
     return NextResponse.json(
