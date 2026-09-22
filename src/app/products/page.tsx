@@ -3,119 +3,140 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type AuthResponse = {
-  authenticated: boolean;
-  userId: number | null;
+type Product = {
+  id: number;
+  name: string;
+  to_buy: boolean;
+  created_at: string;
+};
+
+type ShoppingList = {
+  id: number;
+  name: string;
 };
 
 export default function ProductsPage() {
+  const [list, setList] = useState<ShoppingList | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
 
-  const [data, setData] = useState<AuthResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
   useEffect(() => {
-    loadAuth();
+    async function loadProducts() {
+      try {
+        const res = await fetch("/api/v1/products");
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(data.error || "Impossible de récupérer la liste.");
+          return;
+        }
+
+        setList(data.list);
+        setProducts(data.products);
+      } catch (error) {
+        console.error("PRODUCTS ERROR:", error);
+
+        setError("Impossible de contacter le serveur.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
   }, []);
 
-  async function loadAuth() {
-    console.log("========== LOAD AUTH ==========");
-
+  async function handleLogout() {
     try {
-      const response = await fetch("/api/v1/products");
+      const res = await fetch("/api/v1/auth/logout", {
+        method: "POST",
+      });
 
-      console.log("STATUS:", response.status);
-      console.log("STATUS TEXT:", response.statusText);
-      console.log(
-        "CONTENT-TYPE:",
-        response.headers.get("content-type")
-      );
+      const data = await res.json();
 
-      const text = await response.text();
-
-      console.log("RAW RESPONSE:", text);
-
-      let json: AuthResponse;
-
-      try {
-        json = JSON.parse(text);
-
-        console.log("PARSED JSON:", json);
-      } catch (error) {
-        console.error("JSON PARSE ERROR:", error);
-
-        setError("La réponse du serveur n'est pas du JSON.");
+      if (!res.ok) {
+        setError(data.error || "Impossible de se déconnecter.");
         return;
       }
 
-      if (response.status === 401) {
-        console.log("UNAUTHORIZED");
-
-        setError("Session non authentifiée.");
-
-        return;
-      }
-
-      if (!response.ok) {
-        console.error("API ERROR:", json);
-
-        setError("Erreur API.");
-
-        return;
-      }
-
-      console.log("AUTH DATA RECEIVED:", json);
-
-      setData(json);
+      router.push("/login");
     } catch (error) {
-      console.error("LOAD AUTH ERROR:", error);
+      console.error("LOGOUT ERROR:", error);
 
       setError("Impossible de contacter le serveur.");
-    } finally {
-      setLoading(false);
     }
   }
 
   if (loading) {
     return (
-      <main>
-        <h1>Products</h1>
-        <p>Chargement...</p>
-      </main>
+      <div className="responsive-container">
+        <header className="responsive-header">
+          <h1>Ma liste de courses</h1>
+        </header>
+      </div>
     );
   }
 
   return (
-    <main>
-      <h1>Products - Diagnostic Auth</h1>
+    <div className="responsive-container">
+      <header className="responsive-header">
+        <h1>{list?.name}</h1>
+
+        <div className="search-controls">
+          <input
+            type="text"
+            placeholder="Rechercher un produit..."
+            className="search-input"
+          />
+        </div>
+      </header>
 
       {error && (
-        <p role="alert">
+        <p
+          style={{
+            color: "var(--quaternary-color)",
+            marginBottom: "15px",
+          }}
+        >
           {error}
         </p>
       )}
 
-      {data && (
-        <div>
-          <p>
-            Authentifié :{" "}
-            {data.authenticated ? "OUI" : "NON"}
-          </p>
+      <section>
+        <h2>Produits</h2>
 
-          <p>
-            User ID :{" "}
-            {data.userId ?? "Aucun"}
-          </p>
+        <div className="responsive-wrap">
+          {products.length === 0 ? (
+            <div className="responsive-card">
+              <span className="card-title">
+                Aucun produit dans votre liste.
+              </span>
+            </div>
+          ) : (
+            products.map((product) => (
+              <div key={product.id} className="responsive-card">
+                <span className="card-title">{product.name}</span>
+
+                <div className="card-actions">
+                  <button className="primary-button">À acheter</button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      )}
+      </section>
 
-      <button
-        type="button"
-        onClick={() => router.push("/login")}
-      >
-        Retour login
-      </button>
-    </main>
+      <div className="action-buttons">
+        <button onClick={() => router.push("/")} className="primary-button">
+          Accueil
+        </button>
+
+        <button onClick={handleLogout} className="quaternary-button">
+          Se déconnecter
+        </button>
+      </div>
+    </div>
   );
 }
