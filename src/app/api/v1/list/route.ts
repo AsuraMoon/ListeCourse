@@ -1,52 +1,69 @@
-// GET LIST — retourne uniquement les produits à acheter (to_buy = true) via cookie "session"
+// src/app/api/v1/list/route.ts
+
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { supabase } from "@/utils/supabase/server";
 
-export async function GET(req: Request) {
-  // 1. Lire le cookie "session"
-  const session = req.headers.get("cookie")
-    ?.split("; ")
-    ?.find((c) => c.startsWith("session="))
-    ?.split("=")[1];
+import { supabase } from "@/utils/supabase";
+import { getAuthenticatedUserId } from "@/utils/auth";
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET() {
+  try {
+    // Récupère l'utilisateur associé à la session courante.
+    const userId = await getAuthenticatedUserId();
+
+    // Refuse l'accès si aucune session valide n'est trouvée.
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Non authentifié." },
+        { status: 401 }
+      );
+    }
+
+    // Récupère l'unique liste de courses appartenant à l'utilisateur.
+    const { data: list, error: listError } = await supabase
+      .from("shopping_lists")
+      .select("id, name")
+      .eq("user_id", userId)
+      .single();
+
+    // Si aucune liste n'existe, retourne une liste vide.
+    if (listError || !list) {
+      console.error("GET LIST ERROR:", listError);
+
+      return NextResponse.json([], { status: 200 });
+    }
+
+    // Récupère uniquement les produits marqués comme "à acheter".
+    const { data: items, error: itemsError } = await supabase
+      .from("products")
+      .select("id, name, to_buy, created_at")
+      .eq("list_id", list.id)
+      .eq("to_buy", true)
+      .order("name", { ascending: true });
+
+    // Vérifie que la récupération des produits s'est correctement effectuée.
+    if (itemsError) {
+      console.error("GET SHOPPING LIST ERROR:", itemsError);
+
+      return NextResponse.json(
+        { error: "Impossible de récupérer la liste de courses." },
+        { status: 500 }
+      );
+    }
+
+    // Retourne les produits actuellement à acheter.
+    return NextResponse.json({
+      list,
+      items,
+    });
+  } catch (error) {
+    // Gestion des erreurs inattendues côté serveur.
+    console.error("GET SHOPPING LIST ERROR:", error);
+
+    return NextResponse.json(
+      { error: "Erreur interne du serveur." },
+      { status: 500 }
+    );
   }
-
-  // 2. Récupérer le user via l'id stocké dans le cookie
-  const { data: user, error: userError } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", session)
-    .single();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // 3. Récupérer la liste du user
-  const { data: list, error: listError } = await supabase
-    .from("shopping_lists")
-    .select("id")
-    .eq("user_id", user.id)
-    .single();
-
-  if (listError || !list) {
-    return NextResponse.json([], { status: 200 });
-  }
-
-  // 4. Récupérer les produits à acheter
-  const { data: items, error: itemsError } = await supabase
-    .from("products")
-    .select("*")
-    .eq("list_id", list.id)
-    .eq("to_buy", true);
-
-  if (itemsError) {
-    return NextResponse.json({ error: itemsError.message }, { status: 400 });
-  }
-
-  // 5. Retourner les produits à acheter
-  return NextResponse.json(items);
 }

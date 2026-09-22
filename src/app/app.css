@@ -1,7 +1,9 @@
-/*
-Variables globales de thème pour MiamListe
-------------------------------------------------
-*/
+/* src/app/globals.css */
+
+/* ============================================================
+   VARIABLES DE THÈME
+   ============================================================ */
+
 :root {
   --primary-color: #2563eb;
   --primary-hover: #1e40af;
@@ -15,6 +17,9 @@ Variables globales de thème pour MiamListe
   --quaternary-color: #ef4444;
   --quaternary-hover: #dc2626;
 
+  --quinary-color: #8B5CF6;
+  --quinary-hover: #7C3AED;
+
   --background-color: #f3f4f6;
   --text-color: #1f2937;
 
@@ -24,9 +29,10 @@ Variables globales de thème pour MiamListe
   --vh: 1vh;
 }
 
-/* ------------------------------
+/* ============================================================
    RESET GLOBAL
------------------------------- */
+   ============================================================ */
+
 .app-root,
 .app-root * {
   margin: 0;
@@ -35,7 +41,10 @@ Variables globales de thème pour MiamListe
   box-sizing: border-box;
 }
 
-/* Layout global */
+/* ============================================================
+   LAYOUT GLOBAL
+   ============================================================ */
+
 .app-root {
   display: flex;
   flex-direction: column;
@@ -50,46 +59,91 @@ Variables globales de thème pour MiamListe
   flex: 1;
 }
 
-/* Footer */
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
 .global-footer {
   margin-top: auto;
-  text-align: center;
   padding: 0.8rem;
+  text-align: center;
   font-size: 0.9rem;
   opacity: 0.7;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(6px);
 }
 
-/* ------------------------------
+/* ============================================================
    BOUTONS
------------------------------- */
+   ============================================================ */
 
 .primary-button,
 .secondary-button,
 .tertiary-button,
-.quaternary-button {
+.quaternary-button,
+.quinary-button {
   padding: 0.8rem 1.6rem;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   font-size: 1.1rem;
   color: white;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.primary-button { background: var(--primary-color); }
-.primary-button:hover:not(:disabled) { background: var(--primary-hover); box-shadow: 0 4px 10px var(--hover-shadow); }
+/* Bouton principal */
+.primary-button {
+  background: var(--primary-color);
+}
 
-.secondary-button { background: var(--secondary-color); }
-.secondary-button:hover:not(:disabled) { background: var(--secondary-hover); box-shadow: 0 4px 10px var(--hover-shadow); }
+.primary-button:hover:not(:disabled) {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 10px var(--hover-shadow);
+}
 
-.tertiary-button { background: var(--tertiary-color); }
-.tertiary-button:hover:not(:disabled) { background: var(--tertiary-hover); box-shadow: 0 4px 10px var(--hover-shadow); }
+/* Bouton secondaire */
+.secondary-button {
+  background: var(--secondary-color);
+}
 
-.quaternary-button { background: var(--quaternary-color); }
-.quaternary-button:hover:not(:disabled) { background: var(--quaternary-hover); box-shadow: 0 4px 10px var(--hover-shadow); }
+.secondary-button:hover:not(:disabled) {
+  background: var(--secondary-hover);
+  box-shadow: 0 4px 10px var(--hover-shadow);
+}
 
+/* Bouton tertiaire */
+.tertiary-button {
+  background: var(--tertiary-color);
+}
+
+.tertiary-button:hover:not(:disabled) {
+  background: var(--tertiary-hover);
+  box-shadow: 0 4px 10px var(--hover-shadow);
+}
+
+/* Bouton danger */
+.quaternary-button {
+  background: var(--quaternary-color);
+}
+
+.quaternary-button:hover:not(:disabled) {
+  background: var(--quaternary-hover);
+  box-shadow: 0 4px 10px var(--hover-shadow);
+}
+
+/* Bouton danger */
+.quinary-button {
+  background: var(--quinary-color);
+}
+
+.quinary-button:hover:not(:disabled) {
+  background: var(--quinary-hover);
+  box-shadow: 0 4px 10px var(--hover-shadow);
+}
+
+/* État désactivé */
 .primary-button:disabled,
 .secondary-button:disabled,
 .tertiary-button:disabled,
@@ -98,7 +152,10 @@ Variables globales de thème pour MiamListe
   cursor: not-allowed;
 }
 
-/* MINI versions */
+/* ============================================================
+   MINI BOUTONS
+   ============================================================ */
+
 .primary-button-mini,
 .secondary-button-mini,
 .tertiary-button-mini,
@@ -109,97 +166,99 @@ Variables globales de thème pour MiamListe
   cursor: pointer;
   font-size: 0.9rem;
   color: white;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.primary-button-mini { background: var(--primary-color); }
-.primary-button-mini:hover:not(:disabled) { background: var(--primary-hover); box-shadow: 0 2px 6px var(--hover-shadow); }
+.primary-button-mini {
+  background: var(--primary-color);
+}
 
-.secondary-button-mini { background: var(--secondary-color); }
-.secondary-button-mini:hover:not(:disabled) { background: var(--secondary-hover); box-shadow: 0 2px 6px var(--hover-shadow); }
+.primary-button-mini:hover:not(:disabled) {
+  background: var(--primary-hover);
+  box-shadow: 0 2px 6px var(--hover-shadow);
+}
 
-.tertiary-button-mini { background: var(--tertiary-color); }
-.tertiary-button-mini:hover:not(:disabled) { background: var(--tertiary-hover); box-shadow: 0 2px 6px var(--hover-shadow); }
+.secondary-button-mini {
+  background: var(--secondary-color);
+}
 
-.quaternary-button-mini { background: var(--quaternary-color); }
-.quaternary-button-mini:hover:not(:disabled) { background: var(--quaternary-hover); box-shadow: 0 2px 6px var(--hover-shadow); }
+.secondary-button-mini:hover:not(:disabled) {
+  background: var(--secondary-hover);
+  box-shadow: 0 2px 6px var(--hover-shadow);
+}
 
-/* POPUP OVERLAY */
+.tertiary-button-mini {
+  background: var(--tertiary-color);
+}
+
+.tertiary-button-mini:hover:not(:disabled) {
+  background: var(--tertiary-hover);
+  box-shadow: 0 2px 6px var(--hover-shadow);
+}
+
+.quaternary-button-mini {
+  background: var(--quaternary-color);
+}
+
+.quaternary-button-mini:hover:not(:disabled) {
+  background: var(--quaternary-hover);
+  box-shadow: 0 2px 6px var(--hover-shadow);
+}
+
+/* ============================================================
+   POPUPS
+   ============================================================ */
+
 .popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+  z-index: 9999;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  background: rgba(0, 0, 0, 0.5);
 }
 
-/* POPUP BOX */
 .popup {
-  background: white;
   padding: 20px 30px;
   border-radius: 10px;
   text-align: center;
+  background: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Petite animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-@media (prefers-color-scheme: dark) {
-  .popup-overlay {
-    background: rgba(0, 0, 0, 0.7);
+  from {
+    opacity: 0;
+    transform: scale(0.95);
   }
 
-  .popup {
-    background: #1f2937; /* même fond que tes cartes */
-    color: var(--text-color);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-/* ------------------------------
-   FOND ASURAMOON
------------------------------- */
-body {
-  background-image: url("data:image/svg+xml;utf8,\
-  <svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'>\
-    <text x='0' y='80' font-size='24' fill='rgba(0,0,0,0.02)' transform='rotate(-20 100 60)'>AsuraMoon</text>\
-  </svg>");
-  background-repeat: repeat;
-  background-size: 200px 120px;
-}
+/* ============================================================
+   PRODUCT BAR
+   ============================================================ */
 
-/* ------------------------------
-   LAYOUT RESPONSIVE (MOBILE FIRST)
------------------------------- */
-
-.responsive-container {
+.product-bar {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-/* Recherche */
-.search-controls {
   margin: 1rem 0;
-  width: 100%;
 }
 
 .search-input {
   width: 100%;
   padding: 0.9rem 1.2rem;
-  font-size: 1rem;
-  border-radius: 8px;
   border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
   background: white;
   transition: box-shadow 0.2s ease;
 }
@@ -209,14 +268,165 @@ body {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
 }
 
-/* Titres */
+/* Résultats de recherche */
+.product-bar-results {
+  width: 100%;
+  margin-top: 0.4rem;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 2px 6px var(--card-shadow);
+  animation: productBarAppear 0.15s ease-out;
+}
+
+.product-bar-result {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  text-align: left;
+  color: var(--text-color);
+  background: transparent;
+}
+
+.product-bar-result-button {
+  display: block;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    padding-left 0.15s ease;
+}
+
+.product-bar-result-button:hover {
+  padding-left: 1.2rem;
+  background-color: #f3f4f6;
+}
+
+.product-bar-result-button + .product-bar-result-button {
+  border-top: 1px solid #e5e7eb;
+}
+
+@keyframes productBarAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* src/app/globals.css */
+
+/* ============================================================
+   TOGGLE À ACHETER
+   ============================================================ */
+
+.buy-toggle {
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.buy-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Toggle pleine largeur */
+.buy-toggle-track {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--quaternary-color);
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Curseur */
+.buy-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition:
+    left 0.2s ease;
+}
+
+/* Vert = produit à acheter */
+.buy-toggle input:checked + .buy-toggle-track {
+  background: var(--secondary-color);
+}
+
+/* Curseur à droite */
+.buy-toggle input:checked + .buy-toggle-track::after {
+  left: calc(100% - 23px);
+}
+
+/* Effet au survol */
+.buy-toggle:hover .buy-toggle-track {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* État désactivé */
+.buy-toggle input:disabled + .buy-toggle-track {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   FOND ASURAMOON
+   ============================================================ */
+
+body {
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'>\
+<text x='0' y='80' font-size='24' fill='rgba(0,0,0,0.02)' transform='rotate(-20 100 60)'>AsuraMoon</text>\
+</svg>");
+  background-repeat: repeat;
+  background-size: 200px 120px;
+}
+
+/* ============================================================
+   CONTENEUR RESPONSIVE
+   ============================================================ */
+
+.responsive-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* ============================================================
+   TITRES
+   ============================================================ */
+
 .responsive-header h1,
 section h2 {
   margin-bottom: 0.8rem;
   font-weight: 600;
 }
 
-/* Grille des cartes */
+/* ============================================================
+   GRILLE DES CARTES
+   ============================================================ */
+
 .responsive-wrap {
   display: grid;
   grid-template-columns: 1fr;
@@ -224,26 +434,37 @@ section h2 {
 }
 
 @media (min-width: 600px) {
-  .responsive-wrap { grid-template-columns: repeat(2, 1fr); }
+  .responsive-wrap {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 900px) {
-  .responsive-wrap { grid-template-columns: repeat(3, 1fr); }
+  .responsive-wrap {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (min-width: 1200px) {
-  .responsive-wrap { grid-template-columns: repeat(4, 1fr); }
+  .responsive-wrap {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-/* Cartes */
+/* ============================================================
+   CARTES
+   ============================================================ */
+
 .responsive-card {
-  background: white;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px var(--card-shadow);
   display: flex;
   flex-direction: column;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  padding: 1rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 6px var(--card-shadow);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
 .responsive-card:hover {
@@ -252,30 +473,33 @@ section h2 {
 }
 
 .card-title {
+  margin-bottom: 0.8rem;
   text-align: center;
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 0.8rem;
 }
 
-/* Actions dans les cartes */
+/* ============================================================
+   ACTIONS DES CARTES
+   ============================================================ */
+
 .card-actions {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 0.6rem;
   margin-top: auto;
 }
 
-@media (min-width: 600px) {
-  .card-actions { flex-direction: row; }
-}
+/* ============================================================
+   BOUTONS DE NAVIGATION
+   ============================================================ */
 
-/* Boutons d'action en bas */
 .action-buttons {
-  margin-top: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
 @media (min-width: 600px) {
@@ -286,18 +510,17 @@ section h2 {
 }
 
 /* ============================================================
-   DARK MODE AUTOMATIQUE (prefers-color-scheme)
+   DARK MODE
    ============================================================ */
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background-color: #111827; /* gris très foncé */
-    --text-color: #f3f4f6;       /* gris très clair */
+    --background-color: #111827;
+    --text-color: #f3f4f6;
 
     --card-shadow: rgba(255, 255, 255, 0.05);
     --hover-shadow: rgba(255, 255, 255, 0.15);
 
-    /* Couleurs adaptées au dark mode */
     --primary-color: #3b82f6;
     --primary-hover: #1d4ed8;
 
@@ -317,12 +540,11 @@ section h2 {
     color: var(--text-color);
   }
 
-  /* Fond AsuraMoon (optionnel) */
   body {
     background-image: url("data:image/svg+xml;utf8,\
-    <svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'>\
-      <text x='0' y='80' font-size='24' fill='rgba(255,255,255,0.02)' transform='rotate(-20 100 60)'>AsuraMoon</text>\
-    </svg>");
+<svg xmlns='http://www.w3.org/2000/svg' width='200' height='120'>\
+<text x='0' y='80' font-size='24' fill='rgba(255,255,255,0.02)' transform='rotate(-20 100 60)'>AsuraMoon</text>\
+</svg>");
     background-repeat: repeat;
     background-size: 200px 120px;
     background-color: var(--background-color);
@@ -330,15 +552,46 @@ section h2 {
 
   /* Cartes */
   .responsive-card {
-    background: #1f2937; /* gris foncé */
+    background: #1f2937;
     color: var(--text-color);
   }
 
-  /* Inputs */
+  /* Champs de recherche */
   .search-input {
     background: #1f2937;
     color: var(--text-color);
-    border: 1px solid #374151;
+    border-color: #374151;
+  }
+
+  /* Résultats de recherche */
+  .product-bar-results {
+    background: #1f2937;
+    border-color: #374151;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  .product-bar-result-button:hover {
+    background-color: #374151;
+  }
+
+  .product-bar-result-button + .product-bar-result-button {
+    border-top-color: #374151;
+  }
+
+  /* Popup */
+  .popup-overlay {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .popup {
+    background: #1f2937;
+    color: var(--text-color);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Toggle */
+  .buy-toggle-track::after {
+    background: #f9fafb;
   }
 
   /* Footer */
@@ -347,4 +600,3 @@ section h2 {
     color: var(--text-color);
   }
 }
-

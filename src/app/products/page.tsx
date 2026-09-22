@@ -1,7 +1,10 @@
+// src/app/products/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ProductBar from "@/components/ProductBar";
 
 type Product = {
   id: number;
@@ -16,127 +19,151 @@ type ShoppingList = {
 };
 
 export default function ProductsPage() {
-  const [list, setList] = useState<ShoppingList | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-
   const router = useRouter();
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [list, setList] = useState<ShoppingList | null>(null);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadProducts() {
       try {
-        const res = await fetch("/api/v1/products");
-        const data = await res.json();
+        const response = await fetch("/api/v1/products");
+        const data = await response.json();
 
-        if (!res.ok) {
-          setError(data.error || "Impossible de récupérer la liste.");
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push("/login");
+          }
           return;
         }
 
-        setList(data.list);
-        setProducts(data.products);
+        setProducts(data.products ?? []);
+        setList(data.list ?? null);
       } catch (error) {
-        console.error("PRODUCTS ERROR:", error);
-
-        setError("Impossible de contacter le serveur.");
+        console.error("LOAD PRODUCTS ERROR:", error);
       } finally {
         setLoading(false);
       }
     }
 
     loadProducts();
-  }, []);
+  }, [router]);
 
-  async function handleLogout() {
-    try {
-      const res = await fetch("/api/v1/auth/logout", {
-        method: "POST",
-      });
+  async function handleToBuy(product: Product) {
+    // Inverse l'état actuel du toggle.
+    const newValue = !product.to_buy;
 
-      const data = await res.json();
+    const response = await fetch(`/api/v1/products/${product.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to_buy: newValue,
+      }),
+    });
 
-      if (!res.ok) {
-        setError(data.error || "Impossible de se déconnecter.");
-        return;
-      }
+    if (!response.ok) return;
 
-      router.push("/login");
-    } catch (error) {
-      console.error("LOGOUT ERROR:", error);
-
-      setError("Impossible de contacter le serveur.");
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="responsive-container">
-        <header className="responsive-header">
-          <h1>Ma liste de courses</h1>
-        </header>
-      </div>
+    // Met à jour l'état local après la modification en base.
+    setProducts((current) =>
+      current.map((item) =>
+        item.id === product.id
+          ? { ...item, to_buy: newValue }
+          : item,
+      ),
     );
   }
 
-  return (
-    <div className="responsive-container">
-      <header className="responsive-header">
-        <h1>{list?.name}</h1>
+  async function handleLogout() {
+    await fetch("/api/v1/auth/logout", {
+      method: "POST",
+    });
 
-        <div className="search-controls">
-          <input
-            type="text"
-            placeholder="Rechercher un produit..."
-            className="search-input"
-          />
+    router.push("/login");
+  }
+
+  // La recherche de cette page filtre la liste déjà récupérée.
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.trim().toLowerCase()),
+  );
+
+  return (
+    <main className="responsive-container">
+      <header className="responsive-header">
+        <div>
+          <h1>{list?.name ?? "Mes produits"}</h1>
+        </div>
+
+        <div className="action-buttons">
+          <button
+            className="primary-button"
+            onClick={() => router.push("/list")}
+          >
+            Ma liste de courses
+          </button>
+
+          <button
+            className="secondary-button"
+            onClick={() => router.push("/products/create")}
+          >
+            Créer un produit
+          </button>
+
+          <button className="quaternary-button" onClick={handleLogout}>
+            Déconnexion
+          </button>
         </div>
       </header>
 
-      {error && (
-        <p
-          style={{
-            color: "var(--quaternary-color)",
-            marginBottom: "15px",
-          }}
-        >
-          {error}
-        </p>
-      )}
+      <ProductBar
+        value={search}
+        onChange={setSearch}
+        showResults={false}
+      />
 
-      <section>
-        <h2>Produits</h2>
+      {loading ? (
+        <p>Chargement...</p>
+      ) : (
+        <section className="responsive-wrap">
+          {filteredProducts.map((product) => (
+            <article key={product.id} className="responsive-card">
+              <h2
+                className="card-title"
+                onClick={() => router.push(`/products/${product.id}`)}
+                style={{ cursor: "pointer" }}
+              >
+                {product.name}
+              </h2>
 
-        <div className="responsive-wrap">
-          {products.length === 0 ? (
-            <div className="responsive-card">
-              <span className="card-title">
-                Aucun produit dans votre liste.
-              </span>
-            </div>
-          ) : (
-            products.map((product) => (
-              <div key={product.id} className="responsive-card">
-                <span className="card-title">{product.name}</span>
+              <div className="card-actions">
+                {/* Toggle rouge = pas à acheter, vert = à acheter. */}
+                <label className="buy-toggle">
+                  <input
+                    type="checkbox"
+                    checked={product.to_buy}
+                    onChange={() => handleToBuy(product)}
+                  />
+                  <span className="buy-toggle-track" />
+                </label>
 
-                <div className="card-actions">
-                  <button className="primary-button">À acheter</button>
-                </div>
+                <button
+                  className="quinary-button"
+                  onClick={() => router.push(`/products/${product.id}`)}
+                >
+                  Voir le produit
+                </button>
               </div>
-            ))
+            </article>
+          ))}
+
+          {filteredProducts.length === 0 && (
+            <p>Aucun produit trouvé.</p>
           )}
-        </div>
-      </section>
-
-      <div className="action-buttons">
-        <button onClick={() => router.push("/")} className="primary-button">
-          Accueil
-        </button>
-
-        <button onClick={handleLogout} className="quaternary-button">
-          Se déconnecter
-        </button>
-      </div>
-    </div>
+        </section>
+      )}
+    </main>
   );
 }
