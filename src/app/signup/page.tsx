@@ -4,13 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  // Champs du formulaire
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  // Gestion des erreurs
   const [error, setError] = useState("");
+
+  // Popup de confirmation
   const [showPopup, setShowPopup] = useState(false);
+
+  // Loading du bouton
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
+  // 🔥 LOGIQUE SIMPLE : signup → popup → redirect
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -26,15 +35,18 @@ export default function SignupPage() {
         }),
       });
 
+      const data = await res.json().catch(() => null);
+
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
         setError(data?.error || "Erreur inconnue");
         setLoading(false);
         return;
       }
 
+      // 🔥 Popup d'inscription réussie
       setShowPopup(true);
 
+      // 🔥 Redirection après 2 secondes
       setTimeout(() => {
         router.push("/");
       }, 2000);
@@ -47,6 +59,7 @@ export default function SignupPage() {
 
   return (
     <>
+      {/* Popup de confirmation */}
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup">
@@ -57,10 +70,15 @@ export default function SignupPage() {
       )}
 
       <div className="responsive-container">
-        <div className="responsive-card" style={{ maxWidth: "400px", margin: "80px auto" }}>
+        <div
+          className="responsive-card"
+          style={{ maxWidth: "400px", margin: "80px auto" }}
+        >
           <h1 className="card-title">Inscription</h1>
 
+          {/* Formulaire */}
           <form onSubmit={handleSubmit}>
+            {/* Champ username */}
             <label style={{ display: "block", marginBottom: "15px" }}>
               Nom d'utilisateur
               <input
@@ -72,6 +90,7 @@ export default function SignupPage() {
               />
             </label>
 
+            {/* Champ password */}
             <label style={{ display: "block", marginBottom: "15px" }}>
               Mot de passe
               <input
@@ -83,19 +102,39 @@ export default function SignupPage() {
               />
             </label>
 
+            {/* Affichage des erreurs */}
             {error && (
-              <p style={{ color: "var(--quaternary-color)", marginBottom: "10px" }}>
+              <p
+                style={{
+                  color: "var(--quaternary-color)",
+                  marginBottom: "10px",
+                }}
+              >
                 {error}
               </p>
             )}
 
+            {/* Bouton S'inscrire */}
             <button
               type="submit"
               className="secondary-button"
-              style={{ width: "100%" }}
+              style={{ width: "100%", marginBottom: "15px" }}
               disabled={loading}
             >
               {loading ? "Chargement..." : "S'inscrire"}
+            </button>
+
+            {/* 🔥 Bouton Accueil — placé juste en dessous */}
+            <button
+              type="button"
+              className="secondary-button"
+              style={{
+                width: "100%",
+                backgroundColor: "var(--primary-color)",
+              }}
+              onClick={() => router.push("/")}
+            >
+              Accueil
             </button>
           </form>
         </div>

@@ -1,62 +1,86 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface Product {
+  id: number;
+  name: string;
+  to_buy: boolean;
+}
 
 export default function ProductsPage() {
-  const [logs, setLogs] = useState<string[]>([]);
-  const [sessionCookie, setSessionCookie] = useState<string | null>(null);
-
-  const addLog = (msg: string) => {
-    const time = new Date().toLocaleTimeString();
-    setLogs((prev) => [...prev, `[${time}] ${msg}`]);
-  };
+  const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    addLog("📌 useEffect lancé");
-    addLog("📌 Page Products chargée");
+    const userId = localStorage.getItem("userId");
 
-    // Lire TOUS les cookies
-    const raw = document.cookie;
-    addLog(`📌 document.cookie = "${raw}"`);
-
-    // Extraire le cookie "session"
-    const session = raw
-      .split("; ")
-      .find((c) => c.startsWith("session="));
-
-    if (session) {
-      const value = session.split("=")[1];
-      setSessionCookie(value);
-      addLog(`📌 Cookie 'session' trouvé → ${value}`);
-    } else {
-      addLog("❌ Cookie 'session' introuvable");
+    // 🔥 Si pas connecté → retour login
+    if (!userId) {
+      router.push("/login");
+      return;
     }
+
+    // 🔥 Appel API pour récupérer les produits du user
+    fetch("/api/v1/products", {
+      headers: { "x-user-id": userId }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success) {
+          console.log("API ERROR:", data);
+          return;
+        }
+
+        setProducts(data.products);
+      })
+      .catch((err) => console.error(err));
   }, []);
 
-  return (
-    <div style={{ padding: "20px", fontSize: "18px" }}>
-      <h1>DEBUG LOGIN → PRODUCTS</h1>
+  const filterBySearch = (list: Product[]) => {
+    if (!searchTerm) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter((p) => p.name.toLowerCase().includes(q));
+  };
 
-      <div
-        style={{
-          marginTop: "20px",
-          background: "#eee",
-          padding: "15px",
-          borderRadius: "8px",
-        }}
-      >
-        <h2>📌 Cookie reçu :</h2>
-        <p>
-          {sessionCookie
-            ? `✔ Cookie session = ${sessionCookie}`
-            : "❌ Aucun cookie 'session' reçu"}
-        </p>
+  const sortByName = (list: Product[]) =>
+    [...list].sort((a, b) => a.name.localeCompare(b.name));
 
-        <h2 style={{ marginTop: "20px" }}>📌 Logs :</h2>
-        {logs.map((log, i) => (
-          <p key={i}>{log}</p>
-        ))}
+  const renderCard = (item: Product) => (
+    <div key={item.id} className="responsive-card">
+      <span className="card-title">{item.name}</span>
+
+      <div className="card-actions">
+        <button className="primary-button">Ajouter à la liste</button>
+        <button className="secondary-button">Voir le produit</button>
       </div>
+    </div>
+  );
+
+  return (
+    <div className="responsive-container">
+      <header className="responsive-header">
+        <h1>Liste des produits</h1>
+
+        <div className="search-controls">
+          <input
+            type="text"
+            placeholder="Rechercher un produit..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+      </header>
+
+      <section>
+        <h2>Produits</h2>
+        <div className="responsive-wrap">
+          {sortByName(filterBySearch(products)).map(renderCard)}
+        </div>
+      </section>
     </div>
   );
 }

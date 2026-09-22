@@ -1,16 +1,21 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  const res = NextResponse.redirect(new URL("/login", req.url));
+const AUTH_COOKIE = "auth";
 
-  // supprimer le cookie
-  res.cookies.set("session", "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    expires: new Date(0),
+export async function POST() {
+  const response = NextResponse.json({
+    success: true,
   });
 
-  return res;
+  response.cookies.set(AUTH_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+
+  return response;
 }

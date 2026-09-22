@@ -7,103 +7,154 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loadingPopup, setLoadingPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     setError("");
-    setLoadingPopup(true);
+    setLoading(true);
 
     try {
       const res = await fetch("/api/v1/auth/login", {
         method: "POST",
-        credentials: "include", // <-- indispensable pour que le navigateur accepte/renvoie le cookie
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          username: username.trim(),
+          username,
           password,
         }),
       });
 
-      // Toujours arrêter la popup avant d'agir (évite spinner bloqué)
-      setLoadingPopup(false);
+      const data = await res.json();
 
+      console.log("LOGIN RESPONSE:", data);
+      console.log("STATUS:", res.status);
+
+      // Gestion des erreurs API
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(data?.error || "Erreur inconnue");
+        setError(data.error || "Identifiants incorrects.");
         return;
       }
 
-      // Succès → navigation
+      // Vérification de la présence de l'identifiant utilisateur
+      if (!data.userId) {
+        console.error("Réponse API invalide :", data);
+        setError("La réponse du serveur est invalide.");
+        return;
+      }
+
+      // Stockage temporaire de l'identifiant utilisateur
+      localStorage.setItem("userId", String(data.userId));
+
+      // Redirection après connexion
       router.push("/products");
-    } catch (err) {
-      setLoadingPopup(false);
-      setError("Impossible de contacter le serveur");
-      console.error("Login fetch error:", err);
+    } catch (error) {
+      console.error("LOGIN ERROR:", error);
+
+      setError(
+        "Impossible de contacter le serveur. Veuillez réessayer."
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <>
-      {/* POPUP DE CHARGEMENT */}
-      {loadingPopup && (
-        <div className="popup-overlay">
-          <div className="popup">
-            <h3 style={{ marginBottom: "10px" }}>Connexion en cours… 🔐</h3>
-            <p>Veuillez patienter…</p>
-          </div>
-        </div>
-      )}
+    <div className="responsive-container">
+      <div
+        className="responsive-card"
+        style={{
+          maxWidth: "400px",
+          margin: "80px auto",
+        }}
+      >
+        <h1 className="card-title">Connexion</h1>
 
-      <div className="responsive-container">
-        <div className="responsive-card" style={{ maxWidth: "400px", margin: "80px auto" }}>
-          <h1 className="card-title">Connexion</h1>
+        <form onSubmit={handleSubmit}>
+          {/* Username */}
+          <label
+            style={{
+              display: "block",
+              marginBottom: "15px",
+            }}
+          >
+            Nom d'utilisateur
 
-          <form onSubmit={handleSubmit}>
-            <label style={{ display: "block", marginBottom: "15px" }}>
-              Nom d'utilisateur
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="search-input"
-                required
-                autoComplete="username"
-                disabled={loadingPopup}
-              />
-            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="search-input"
+              autoComplete="username"
+              required
+              disabled={loading}
+            />
+          </label>
 
-            <label style={{ display: "block", marginBottom: "15px" }}>
-              Mot de passe
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="search-input"
-                required
-                autoComplete="current-password"
-                disabled={loadingPopup}
-              />
-            </label>
+          {/* Password */}
+          <label
+            style={{
+              display: "block",
+              marginBottom: "15px",
+            }}
+          >
+            Mot de passe
 
-            {error && (
-              <p style={{ color: "var(--quaternary-color)", marginBottom: "10px" }}>
-                {error}
-              </p>
-            )}
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="search-input"
+              autoComplete="current-password"
+              required
+              disabled={loading}
+            />
+          </label>
 
-            <button
-              type="submit"
-              className="secondary-button"
-              style={{ width: "100%" }}
-              disabled={loadingPopup}
+          {/* Error */}
+          {error && (
+            <p
+              style={{
+                color: "var(--quaternary-color)",
+                marginBottom: "10px",
+              }}
             >
-              {loadingPopup ? "Connexion…" : "Se connecter"}
-            </button>
-          </form>
-        </div>
+              {error}
+            </p>
+          )}
+
+          {/* Login */}
+          <button
+            type="submit"
+            className="secondary-button"
+            style={{
+              width: "100%",
+              marginBottom: "15px",
+            }}
+            disabled={loading}
+          >
+            {loading ? "Connexion..." : "Se connecter"}
+          </button>
+
+          {/* Home */}
+          <button
+            type="button"
+            className="secondary-button"
+            style={{
+              width: "100%",
+              backgroundColor: "var(--primary-color)",
+            }}
+            onClick={() => router.push("/")}
+            disabled={loading}
+          >
+            Accueil
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   );
 }

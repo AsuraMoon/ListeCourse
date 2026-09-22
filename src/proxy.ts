@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function proxy(req: NextRequest) {
-  const token = req.cookies.get("session")?.value;
+export function proxy(req: NextRequest) {
+  const authCookie = req.cookies.get("auth")?.value;
 
-  console.log("PROXY RUNNING ON:", req.nextUrl.pathname);
-  console.log("SESSION VALUE:", token);
+  const path = req.nextUrl.pathname;
 
-  // si pas de session, redirige vers login
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  // Routes protégées
+  const protectedRoutes = [
+    "/products",
+  ];
+
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    path.startsWith(route)
+  );
+
+  // Pas de cookie → redirection vers login
+  if (isProtectedRoute && !authCookie) {
+    return NextResponse.redirect(
+      new URL("/login", req.url)
+    );
   }
 
   return NextResponse.next();
@@ -16,11 +26,6 @@ export async function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/products",
-    "/list",
-    "/user",
-    "/api/v1/products/:path*",
-    "/api/v1/list/:path*",
-    "/api/v1/user/:path*",
+    "/products/:path*",
   ],
 };
