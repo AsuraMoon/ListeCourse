@@ -1,7 +1,10 @@
+// src/app/signup/page.tsx
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { FormEvent } from "react";
 
 export default function SignupPage() {
   // Champs du formulaire
@@ -19,8 +22,8 @@ export default function SignupPage() {
 
   const router = useRouter();
 
-  // 🔥 LOGIQUE SIMPLE : signup → popup → redirect
-  async function handleSubmit(e) {
+  // Gère la soumission du formulaire d'inscription.
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -43,10 +46,10 @@ export default function SignupPage() {
         return;
       }
 
-      // 🔥 Popup d'inscription réussie
+      // Affiche la confirmation d'inscription.
       setShowPopup(true);
 
-      // 🔥 Redirection après 2 secondes
+      // Redirige vers l'accueil après 2 secondes.
       setTimeout(() => {
         router.push("/");
       }, 2000);
@@ -63,7 +66,9 @@ export default function SignupPage() {
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup">
-            <h3 style={{ marginBottom: "10px" }}>Inscription confirmée 🎉</h3>
+            <h3 style={{ marginBottom: "10px" }}>
+              Inscription confirmée 🎉
+            </h3>
             <p>Redirection vers l'accueil...</p>
           </div>
         </div>
@@ -84,7 +89,9 @@ export default function SignupPage() {
               <input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setUsername(e.target.value)
+                }
                 className="search-input"
                 required
               />
@@ -96,7 +103,9 @@ export default function SignupPage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
                 className="search-input"
                 required
               />
@@ -124,7 +133,7 @@ export default function SignupPage() {
               {loading ? "Chargement..." : "S'inscrire"}
             </button>
 
-            {/* 🔥 Bouton Accueil — placé juste en dessous */}
+            {/* Bouton Accueil */}
             <button
               type="button"
               className="secondary-button"
